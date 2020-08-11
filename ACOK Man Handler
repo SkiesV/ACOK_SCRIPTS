@@ -1,0 +1,161 @@
+--// Rescripted by SkiesValor
+--// Date : 11.8.20
+
+
+-------------------
+--// VARIABLES //--
+-------------------
+
+--local dataStore = game:GetService("DataStoreService")
+--local plrData = dataStore:GetDataStore("PlrData2") -- This data is being used for nameChanger
+
+local HouseManager = require(game.ReplicatedStorage.Modules.HouseManager)
+local ServerScriptServices = game:GetService("ServerScriptService")
+local DataStore2 = require(ServerScriptServices.ScriptHolder.DataHandler:WaitForChild("DataStore2"))
+
+local MainGroup = 7191821
+local KingsGuard = 5072009
+local Citywatch = 5072007
+local NightWatch = 0
+
+local DelayTime = 120
+-------------------
+--// FUNCTIONS //--
+-------------------
+
+function setPlayer(arg, plr, team, tool)
+	print(arg, plr, team, tool)
+	if arg == true then
+		plr.Team = team
+	end
+	if plr.Backpack:FindFirstChild(tool) == nil then
+		local tool2 = game:GetService("ServerStorage").Tools:FindFirstChild(tool)
+		if tool2 then
+			tool2:Clone().Parent = plr.Backpack
+		end
+	end
+end
+
+function saveData(plr)
+	--local key = "User-"..plr.UserId
+	--if plr.SaveWait.Value <= os.time() then
+		--local err,success = pcall(function()
+	--local dataToSave = {}
+	local nameDataStore = DataStore2("NameData", plr)
+	local nameDataTable = nameDataStore:Get({})
+	
+	local playerNameData = plr.NameData
+	nameDataTable[1] = playerNameData.ColorR.Value
+	nameDataTable[2] = playerNameData.ColorG.Value
+	nameDataTable[3] = playerNameData.ColorB.Value
+	nameDataTable[4] = playerNameData.SColorR.Value
+	nameDataTable[5] = playerNameData.SColorG.Value
+	nameDataTable[6] = playerNameData.SColorB.Value
+	nameDataTable[7] = playerNameData.Font.Value
+	nameDataTable[8] = playerNameData.Lines.Value
+	nameDataTable[9] = playerNameData.RPName1.Value
+	nameDataTable[10] = playerNameData.RPName2.Value
+	nameDataTable[11] = playerNameData.RPName3.Value
+	nameDataTable[12] = playerNameData.RPName4.Value
+	nameDataTable[13] = playerNameData.RPName5.Value
+	nameDataTable[14] = playerNameData.RPName6.Value
+	nameDataTable[15] = playerNameData.SEnabled.Value
+	--dataToSave[1] = nameDataTable
+	--plr.SaveWait.Value = os.time() + 10
+	nameDataStore:Set(nameDataTable)
+		--end)
+	--end
+end
+
+game.Players.PlayerAdded:Connect(function(plr)
+	if plr.UserId == 1 then plr:Kick("Idk what you being kicked but get kicked and ur kick doesn't matter to me so buzz off chief")end
+	local data = Instance.new("Folder", plr)
+	data.Name = "Data"
+	local saveWait = Instance.new("IntValue",plr)
+	saveWait.Name = "SaveWait"
+	local NameData = script.NameData:Clone()
+	NameData.Parent = plr
+	--local key = "User-"..plr.UserId
+	local nameDataStore = DataStore2("NameData", plr)
+	local loadData = nameDataStore:Get()
+	
+	if loadData then
+		NameData.ColorR.Value = loadData[1]
+		NameData.ColorG.Value = loadData[2]
+		NameData.ColorB.Value = loadData[3]
+		NameData.SColorR.Value = loadData[4]
+		NameData.SColorG.Value = loadData[5]
+		NameData.SColorB.Value = loadData[6]
+		NameData.Font.Value = loadData[7]
+		NameData.Lines.Value = loadData[8]
+		NameData.RPName1.Value = loadData[9]
+		NameData.RPName2.Value = loadData[10]
+		NameData.RPName3.Value = loadData[11]
+		NameData.RPName4.Value = loadData[12]
+		NameData.RPName5.Value = loadData[13]
+		NameData.RPName6.Value = loadData[14]
+		NameData.SEnabled.Value = loadData[15]
+	else
+		NameData.ColorR.Value = 255
+		NameData.ColorG.Value = 255
+		NameData.ColorB.Value = 255
+		NameData.SEnabled.Value = true
+		NameData.ColorR.Value = 255
+	end
+	
+	saveData(plr)
+	
+	if(NameData.RPName1.Value == "") then
+		NameData.RPName1.Value = plr.Name
+	end
+        local admins = { -- Group Rank Names Format: "Gay of gays", "Lesbian Lesbian"
+            "Genre Owner", "Developer", "Game Master", "Administrator", "The Book Keeper", "Co Owner", "Moderator"
+        }
+        local westerosi = {
+            "Kings/Queen Of The Andals", "Hand Of The Andals", "Small Council", "Royal Family", "Kings Guard", "Lord/Lady Paramount", "City Watch", "Lord & Ladies", "Highborn", "Knight", "Squire", "Soldier","Citizen", "Foreigner"
+        }
+	local teamSet = false
+	for i,v in pairs(admins) do
+		if teamSet == false then
+			if plr:GetRoleInGroup(MainGroup) == v and plr.Name ~= "iAmYetToBeFamous" then
+				setPlayer(true, plr, game.Teams.Administration, "Sword")
+				teamSet = true
+			end
+		else break end
+	end
+	for i,v in pairs(westerosi) do
+		if plr:GetRoleInGroup(MainGroup) == v then
+			setPlayer(true, plr, game.Teams.Westerosi,"Sword")
+		end
+	end
+	local char = plr.Character or plr.CharacterAdded:Wait()
+	
+	plr.CharacterAdded:Connect(function(char)
+		char:WaitForChild("Humanoid").DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+		if plr:GetRankInGroup(MainGroup) >= 43 and plr:GetRankInGroup(MainGroup) ~= 255 then
+			setPlayer(true, plr, game.Teams.Administration, "Sword")
+			elseif plr:GetRankInGroup(MainGroup) == 255 then
+			setPlayer(true, plr, game.Teams["A Clash Of Kings"], "Sword")
+		end
+		if plr:GetRankInGroup(KingsGuard) > 1 then
+			setPlayer(true, plr, game.Teams.KingsGuard, "Sword")
+			elseif plr:GetRankInGroup(NightWatch) == 1 then
+			setPlayer(true, plr, game.Teams.NightWatch, "Sword")
+			elseif plr:GetRankInGroup(Citywatch) > 1 then
+			setPlayer(true, plr, game.Teams.CityWatch, "Spear")
+		end
+		for i,v in pairs(westerosi) do
+			if plr:GetRoleInGroup(MainGroup) == v then
+				setPlayer(true, plr, game.Teams.Westerosi, "Sword")
+			end
+		end
+		for i,v in ipairs(HouseManager.ActiveHouses) do
+			if plr:IsInGroup(v[1]) then
+				if game.ServerStorage.Armors.Tools:FindFirstChild(i) then
+					game.ServerStorage.Armors.Tools[i]:Clone().Parent = plr.Backpack
+				end	
+			end
+			break
+		end
+	end)
+end)
